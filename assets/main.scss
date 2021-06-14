@@ -3,3 +3,24 @@
 ---
 
 @import "{{ site.theme }}";
+
+.smlink-list {
+    li + li {
+        padding-top: 5px;
+    }
+}
+
+a {
+    .smlink-list &:hover {
+            text-decoration: none;
+
+        .username {
+            text-decoration: underline;
+        }
+    }
+}
+
+.smlink-list {
+    list-style: none;
+    margin-left: 0;
+}
