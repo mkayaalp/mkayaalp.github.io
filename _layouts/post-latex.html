@@ -1,0 +1,55 @@
+---
+layout: default
+---
+<script type="module">
+  import { LaTeXJSComponent } from "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.mjs"
+  customElements.define("latex-js", LaTeXJSComponent)
+</script>
+<style>
+  latex-js {
+      padding-top: 100px;
+  }
+</style>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="post-content e-content" itemprop="articleBody">
+    <latex-js baseURL="https://cdn.jsdelivr.net/npm/latex.js/dist/">
+      \documentclass[14pt]{article}
+      \usepackage{hyperref}
+      \setlength{\paperwidth}{12cm}
+      \setlength{\textwidth}{11cm}
+      \setlength{\oddsidemargin}{-2.04cm} 
+      \title{ {{page.title}} }
+      {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+      \date{ {{ page.date | date: date_format }} }
+      {%- if page.author -%}
+      \author{ {{ page.author }} }
+      {%- endif -%}
+      \begin{document}
+      \maketitle
+      {%- if post -%}
+      {% assign tags = post.tags %}
+      {%- else -%}
+      {% assign tags = page.tags %}
+      {%- endif -%}
+      \begin{center}
+      {% if tags %}
+      Tags: %
+      {% endif %}
+      {%- for tag in tags -%}
+      {%- assign ts = tag | slugize -%}
+      {%- assign t = '\href{' | append: site.baseurl | append: '/tags/#' | append: ts | append: '}{' | append: tag | append: '}' -%}
+      {{t}}
+      {%- unless forloop.last -%}, {% endunless %}
+      {%- endfor -%}
+      \end{center}
+      \end{document}
+    </latex-js>
+    {{ content }}
+  </div>
+
+  {%- if site.disqus.shortname -%}
+    {%- include disqus_comments.html -%}
+  {%- endif -%}
+
+  <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+</article>

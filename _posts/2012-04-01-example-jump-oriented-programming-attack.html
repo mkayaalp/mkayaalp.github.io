@@ -1,0 +1,50 @@
+---
+layout: post-latex
+title: "Example Jump-Oriented Programming Attack"
+date: 2012-04-01 02:08:00 -0400
+tags: CFI JOP
+author: Mehmet Kayaalp
+excerpt: 'I constructed a Jump-Oriented Programming Attack example.'
+---
+<latex-js baseURL="https://cdn.jsdelivr.net/npm/latex.js/dist/">
+    \documentclass[14pt]{article}
+    \usepackage{hyperref}
+    \setlength{\paperwidth}{12cm}
+    \setlength{\textwidth}{11cm}
+    \setlength{\oddsidemargin}{-2.04cm}
+    \begin{document}
+    I have been working on Jump-Oriented Programming for some time now. 
+    There are papers out there but there was no concrete code examples that you could download and play with. 
+    So, I tried to create that. I took many shortcuts and avoided actual gadget discovery parts.
+    I copied an example, that was supposed to work as it is, found in the Technical Report by Bletsch et. al,
+    titled \href{ftp://ftp.ncsu.edu/pub/tech/2010/TR-2010-8.pdf}{"Jump-Oriented Programming: A New Class of Code-Reuse Attack"}.
+    Mainly, there are two reasons why it did not work:
+
+    \begin{itemize}
+    \item One does not simply overwrite a long jump buffer
+    \item Where are those gadgets in the libc?
+    \end{itemize}
+
+    \section{Overwriting the return address instead of a jump buffer}
+    In GNU LIBC, setjmp and longjmp implementations use
+    \href{http://udrepper.livejournal.com/13393.html}{PTR\_MANGLE/PTR\_DEMANGLE},
+    which essentially XORs the values by a random value (per process).
+    It is not the best defense but it is something.
+    I didn't want to deal with it and used return-oriented approach for attack initiation.
+    I simply disabled stack canaries (-fno-stack-protector) and modified a return address.
+
+    \section{Embedding the gadgets in vulnerable code}
+    I was unable to locate the gadgets used in their attack.
+    I believe I found the same libc from Debian repositories.
+    It had the same version, same file size but it did not have the same MD5 checksum.
+    The dispatcher gadget was of particular importance to me.
+    So, as I was trying to locate it in the libc,
+    I discovered that there was a similar instruction but the source and destination operands were switched.
+    My guess is, there was some confusion about AT\&T syntax vs. Intel syntax.
+    Nevertheless, the paper is a good read and I think what matters is the concept rather than exact instructions and bytes.
+    Since I couldn't find their instructions, I just added them to my vulnerable code and used them as if they were inside libc.
+
+    \section{Download}
+    The attack code can be downloaded \href{http://www.cs.binghamton.edu/~mkayaalp/jop_example.tar.gz}{here}.
+    \end{document}
+</latex-js>

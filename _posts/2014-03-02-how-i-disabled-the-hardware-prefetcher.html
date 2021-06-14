@@ -1,0 +1,65 @@
+---
+layout: post-latex
+title: "How I Disabled the Hardware Prefetchers of my Sandy Bridge Processor"
+date: 2014-03-02 01:00:00 -0400
+tags: BIOS
+author: Mehmet Kayaalp
+excerpt: 'I finally turned off the hardware prefetchers on my system. How, you ask?'
+---
+<latex-js baseURL="https://cdn.jsdelivr.net/npm/latex.js/dist/">
+    \documentclass[14pt]{article}
+    \usepackage{hyperref}
+    \setlength{\paperwidth}{12cm}
+    \setlength{\textwidth}{11cm}
+    \setlength{\oddsidemargin}{-2.04cm}
+    \begin{document}
+    The Sandy Bridge processors are equipped with several hardware prefetchers.
+    Unlike previous architectures, disabling them using \verb|IA32_MISC_ENABLE| MSR is no longer possible.
+    In Intel Software Developer's Manual, the relevant bits are marked as "reserved" for Sandy Bridge and more recent architectures.
+    Apparently, the only way to disable them is from BIOS settings,
+    as Patrick Fay--an Intel Software Developer wrote \href{http://software.intel.com/en-us/comment/1716546#comment-1716546}{here}.
+    It would be okay if there was a BIOS setting for it.
+    But in my case, a Dell machine with some Dell motherboard (that goes by the name of \verb|OY2MRG|),
+    there isn't any mention of prefetchers in BIOS. Bleh!
+
+    I used to think that BIOS codes were akin to bootloaders,
+    and that there would be many open source ones that one could easily customize or play with.
+    Turns out, it is not. There are only a handful of major BIOS manufacturers,
+    all of them having proprietary BIOS codes.
+    For the current situtaion of BIOSes and open source community efforts,
+    check out \href{http://en.wikipedia.org/wiki/BIOS_features_comparison#The_BIOS_business}{The BIOS Business}.
+    Even though open source replacements are not available (yet),
+    customizing the proprietary one is possible to some extent.
+    Dell buys their BIOSes from American Megatrends,
+    and there is a tool called AMI Bios Configuration Program (AMIBCP)
+    that can configure a .ROM file to modify the visible options on the BIOS settings
+    (which is called Aptio Setup Utility) and generate a new ROM file to flash the BIOS with.
+
+    On a non-Windows machine, BIOS update gets a little tricky.
+    To get a .ROM file, we download the BIOS update from Dell Support
+    website for our particular model.
+    The tool is a Windows binary. In Linux, we can open it in Wine
+    to let the installer extract the files into a temporary folder,
+    which include the BIOS ROM file. It later gives an error,
+    but doesn't matter as long as we have the files.
+    We can also open the AMIBCP tool using Wine,
+    open the ROM file, go to the Advanced→CPU Configuration tab,
+    change the Access/Use setting to USER for Hardware Prefetcher,
+    Adjacent Cache Line Prefetcher, L1 Data Prefetcher,
+    and Data Reuse Optimization, save the modified ROM file and close the tool.
+
+    After trying and failing some BIOS flashing methods, what worked for me was:
+    \begin{itemize}
+    \item downloading a 32-bit (64-bit does not work) Windows 8 Trial, 
+    \item installing onto a virtual machine,
+    \item creating a USB recovery drive,
+    \item copying the BIOS update from Dell and the modified ROM to the USB drive,
+    \item booting into it,
+    \item opening the command line,
+    \item running the update tool to again extract the files, which include a BIOS flashing utility,
+    \item and using it with the modified ROM file, it complained about some mismatch but I forced it, and voila!
+    \end{itemize}
+
+    Disclaimer: This last part could brick the motherboard. At your own risk.
+    \end{document}
+</latex-js>

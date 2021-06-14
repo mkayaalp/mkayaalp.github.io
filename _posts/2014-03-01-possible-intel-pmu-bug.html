@@ -1,0 +1,53 @@
+---
+layout: post-latex
+title: "Possible Intel PMU Bug"
+date: 2014-03-01 01:00:00 -0400
+tags: PMU x86
+author: Mehmet Kayaalp
+excerpt: 'I might have encountered a trivial PMU bug of Intel Sandy Bridge processors.'
+---
+<latex-js baseURL="https://cdn.jsdelivr.net/npm/latex.js/dist/">
+    \documentclass[14pt]{article}
+    \usepackage{hyperref}
+    \setlength{\paperwidth}{12cm}
+    \setlength{\textwidth}{11cm}
+    \setlength{\oddsidemargin}{-2.04cm}
+    \begin{document}
+    Intel provides a bunch of (non-architectural) performance monitoring events to count uops.
+    I have been trying to use the ones related to cache behavior of loads in a loadable kernel module.
+    The odd thing is, even though the LKM is operating on ring-0,
+    the performance monitoring events that I program to count ring-0 events are not working
+    when it comes to uop related events.
+    Switching to user level, however, gives (somewhat) meaningful data.
+    I am convinced that it might be a possible bug in Sandy Bridge processors.
+    
+    The following should work, but it does not. All it reads from PMC0 is 0.
+    If the value written to the \verb|PERFEVTSEL0| is changed to \verb|0x4181D0|,
+    then the results become non-zero.
+    \end{document}
+</latex-js>
+
+
+{% highlight nasm %}
+; write 0 to PMC0
+xor %edx, %edx
+xor %eax, %eax
+mov $0xC1, %ecx
+wrmsr
+
+; set PERFEVTSEL0 to count MEM_UOP_RETIRED.ALL_LOADS 
+; 0x4----- means enable counting for PMC0
+; 0x-2---- means ring-0
+; 0x--81-- is the umask value
+; 0x----D0 is the event number
+mov $0x4281D0, %eax
+mov $0x186, %ecx
+wrmsr
+
+; do a bunch of loads here
+...
+
+; read PMC0 into %edx:%eax
+xor %ecx, %ecx
+rdpmc
+{% endhighlight %}
